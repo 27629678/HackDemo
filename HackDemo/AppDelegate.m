@@ -8,6 +8,24 @@
 
 #import "AppDelegate.h"
 
+#import <Aspects/Aspects.h>
+#import <JSPatch/JPEngine.h>
+
+@interface Test : NSObject
+
+- (void)test;
+
+@end
+
+@implementation Test
+
+- (void)test
+{
+    NSLog(@"Origin Test Log.");
+}
+
+@end
+
 @interface AppDelegate ()
 
 @end
@@ -16,36 +34,29 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    [self runTest];
+    
     return YES;
 }
 
-
-- (void)applicationWillResignActive:(UIApplication *)application {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+- (void)runTest
+{
+    Test* t = [[Test alloc] init];
+    [t test];
+    
+    __unused Test* t1 = [[Test alloc] init];
+    
+    [self aspect_hook:t];
+    [t test];
 }
 
-
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+- (void)aspect_hook:(id)obj
+{
+    NSError* error = nil;
+    __unused id<AspectToken> token =
+    [obj aspect_hookSelector:@selector(test) withOptions:AspectPositionAfter usingBlock:^ {
+        NSLog(@"aspect_hook_log.");
+    } error:&error];
 }
-
-
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-}
-
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-}
-
-
-- (void)applicationWillTerminate:(UIApplication *)application {
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-}
-
 
 @end
