@@ -28,6 +28,8 @@
 
 @interface AppDelegate ()
 
+@property (nonatomic, strong) id<AspectToken> aspect_token;
+
 @end
 
 @implementation AppDelegate
@@ -48,15 +50,24 @@
     
     [self aspect_hook:t];
     [t test];
+    
+    if ([self.aspect_token remove]) {
+        [t test];
+    }
 }
 
 - (void)aspect_hook:(id)obj
 {
     NSError* error = nil;
-    __unused id<AspectToken> token =
+    self.aspect_token =
     [obj aspect_hookSelector:@selector(test) withOptions:AspectPositionAfter usingBlock:^ {
         NSLog(@"aspect_hook_log.");
     } error:&error];
+}
+
+- (void)jspatch_hook
+{
+    
 }
 
 @end
