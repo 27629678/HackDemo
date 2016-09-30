@@ -49,14 +49,18 @@
 
 - (void)runTest
 {
+    [self jspatch_hook];
     Test* t = [[Test alloc] init];
-    [t test];
-    
-    __unused Test* t1 = [[Test alloc] init];
-    
     [self aspect_hook:t];
     
-    [t1 test];
+    [t test];
+    
+//    __unused Test* t1 = [[Test alloc] init];
+//    [t1 test];
+//
+//    [self aspect_hook:t];
+//    
+//    [t1 test];
 //    [t test];
 //    
 //    if ([self.aspect_token remove]) {
@@ -72,7 +76,7 @@
 {
     NSError* error = nil;
     self.aspect_token =
-    [obj aspect_hookSelector:@selector(test) withOptions:AspectPositionAfter usingBlock:^ {
+    [obj aspect_hookSelector:@selector(test) withOptions:AspectPositionInstead usingBlock:^ {
         NSLog(@"aspect_hook_log.");
     } error:&error];
     
@@ -93,7 +97,13 @@
 
 - (void)jspatch_hook
 {
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"js_demo" ofType:@"js"];
+    if (path.length == 0) {
+        return;
+    }
     
+    [JPEngine startEngine];
+    [JPEngine evaluateScriptWithPath:path];
 }
 
 @end
