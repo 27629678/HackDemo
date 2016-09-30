@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 
+#import <objc/objc-runtime.h>
 #import <Aspects/Aspects.h>
 #import <JSPatch/JPEngine.h>
 
@@ -22,6 +23,11 @@
 - (void)test
 {
     NSLog(@"Origin Test Log.");
+}
+
++ (void)class_test
+{
+    NSLog(@"origin_class_test_log.");
 }
 
 @end
@@ -49,11 +55,17 @@
     __unused Test* t1 = [[Test alloc] init];
     
     [self aspect_hook:t];
-    [t test];
     
-    if ([self.aspect_token remove]) {
-        [t test];
-    }
+    [t1 test];
+//    [t test];
+//    
+//    if ([self.aspect_token remove]) {
+//        [t test];
+//    }
+    
+//    Class class = NSClassFromString(@"Test_Aspects_");
+//    Test* at = [[class alloc] init];
+//    [at test];
 }
 
 - (void)aspect_hook:(id)obj
@@ -63,6 +75,20 @@
     [obj aspect_hookSelector:@selector(test) withOptions:AspectPositionAfter usingBlock:^ {
         NSLog(@"aspect_hook_log.");
     } error:&error];
+    
+//    [Test aspect_hookSelector:@selector(class_test) withOptions:AspectPositionAfter usingBlock:^ {
+//        NSLog(@"aspect_class_hook_log.");
+//    } error:&error];
+    
+//    SEL selector = NSSelectorFromString(@"aspects__test");
+//    id value = objc_getAssociatedObject(obj, selector);
+//    
+//    Class class = NSClassFromString(@"Test_Aspects_");
+//    
+//    Test* at = [[class alloc] init];
+//    [at test];
+    
+    assert(error == nil);
 }
 
 - (void)jspatch_hook
